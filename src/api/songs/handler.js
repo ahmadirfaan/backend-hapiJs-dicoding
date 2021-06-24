@@ -1,22 +1,4 @@
-const ClientError = require('../../exceptions/ClientError');
-
-const errorHandler = async (error, h) => {
-  if (error instanceof ClientError) {
-    const response = h.response({
-      status: 'fail',
-      message: error.message,
-    });
-    response.code(error.statusCode);
-    return response;
-  }
-  const response = h.response({
-    status: 'error',
-    message: 'Maaf, terjadi kegagalan pada server kami.',
-  });
-  response.code(500);
-  console.error(error);
-  return response;
-};
+const errorHandler = require('../../utils/ErrorHandler');
 
 class SongsHandler {
   constructor(service, validator) {
@@ -51,8 +33,7 @@ class SongsHandler {
       response.code(201);
       return response;
     } catch (error) {
-      const returnError = await errorHandler(error, h);
-      return returnError;
+      return errorHandler(error, h);
     }
   }
 
@@ -66,8 +47,7 @@ class SongsHandler {
         },
       };
     } catch (error) {
-      const returnError = await errorHandler(error, h);
-      return returnError;
+      return errorHandler(error, h);
     }
   }
 
@@ -82,8 +62,7 @@ class SongsHandler {
         },
       };
     } catch (error) {
-      const returnError = await errorHandler(error, h);
-      return returnError;
+      return errorHandler(error, h);
     }
   }
 
@@ -99,8 +78,7 @@ class SongsHandler {
         message: 'Lagu berhasil diperbarui',
       };
     } catch (error) {
-      const returnError = await errorHandler(error, h);
-      return returnError;
+      return errorHandler(error, h);
     }
   }
 
@@ -114,8 +92,7 @@ class SongsHandler {
         message: 'Lagu berhasil dihapus',
       };
     } catch (error) {
-      const returnError = await errorHandler(error, h);
-      return returnError;
+      return errorHandler(error, h);
     }
   }
 }
