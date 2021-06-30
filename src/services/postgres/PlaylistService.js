@@ -5,9 +5,10 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistService {
-  constructor(collaborationService) {
+  constructor(collaborationService, cacheService) {
     this._pool = new Pool();
     this._collaborationService = collaborationService;
+    this._cacheService = cacheService;
   }
 
   async addPlaylist({ name, owner }) {
@@ -64,6 +65,8 @@ class PlaylistService {
     if (!result.rowCount) {
       throw new InvariantError('Lagu gagal ditambahkan');
     }
+    await this._cacheService.delete(`playlist:${playlistId}`);
+
     return result.rows;
   }
 
@@ -76,6 +79,8 @@ class PlaylistService {
       values: [playlistId],
     };
     const result = await this._pool.query(query);
+    // playlists akan disimpan pada cache sebelum fungsi getSongAtPlaylist dikembalikan
+    await this._cacheService.set(`playlist:${playlistId}`, JSON.stringify(result));
     return result.rows;
   }
 
@@ -89,6 +94,7 @@ class PlaylistService {
     if (!result.rowCount) {
       throw new InvariantError('Lagu di dalam playlist ditambahkan');
     }
+    await this._cacheService.delete(`playlist:${playlistId}`);
     return result.rows[0];
   }
 
