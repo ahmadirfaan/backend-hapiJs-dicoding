@@ -1,9 +1,17 @@
 
 package com.openmusic.api.service.impl;
 
+import com.openmusic.api.entities.cache.UsersTemp;
 import com.openmusic.api.entities.database.Users;
+import com.openmusic.api.exception.ClientException;
+import com.openmusic.api.exception.EntityNotFoundException;
+import com.openmusic.api.models.request.UserLoginRequest;
 import com.openmusic.api.models.request.UserRequest;
+import com.openmusic.api.repository.jpa.UsersRepository;
+import com.openmusic.api.repository.redis.UserTempRepository;
 import com.openmusic.api.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,23 +21,64 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
 
+    protected final UsersRepository usersRepository;
+    protected final UserTempRepository userTempRepository;
+    protected final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    public UserServiceImpl(UsersRepository usersRepository, UserTempRepository userTempRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.usersRepository = usersRepository;
+        this.userTempRepository = userTempRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
+
     @Override
     public Users addUser(UserRequest request) {
-        return null;
+        verifyUsername(request.getUsername());
+        Users users = new Users();
+        users.setUsername(request.getUsername());
+        users.setFullName(request.getFullName());
+        users.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+        return usersRepository.save(users);
     }
 
     @Override
     public Users verifyUsername(String username) {
-        return null;
+        Users users = usersRepository.findByUsername(username);
+        if(users != null) {
+            return users;
+        } else {
+            throw new ClientException("Gagal menambahkan user. Username sudah digunakan.");
+        }
     }
 
     @Override
     public Users findByUserId(String userId) {
-        return null;
+        Users users = new Users();
+        UsersTemp usersTemp = userTempRepository.findById(userId).get();
+        if (usersTemp != null) {
+            users.setUsername(usersTemp.getUsername());
+            users.setPassword(usersTemp.getPassword());
+            users.setFullName(usersTemp.getFullName());
+            return users;
+        } else {
+            users = usersRepository.findById(userId).orElse(null);
+            if (users != null) {
+                return users;
+            } else {
+                throw new EntityNotFoundException("User tidak ditemukan");
+            }
+        }
     }
 
     @Override
-    public Users verifyUserCredentials(String username, String password) {
-        return null;
+    public Boolean verifyUserCredentials(UserLoginRequest request) {
+        Users users = verifyUsername(request.getUsername());
+        if (users != null) {
+            boolean matchPassword = bCryptPasswordEncoder.matches(request.getPassword(), users.getPassword());
+            return matchPassword;
+        } else {
+            throw new ClientException("Username tidak ditemukan");
+        }
     }
 }

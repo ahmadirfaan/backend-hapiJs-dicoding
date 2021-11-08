@@ -1,24 +1,23 @@
+/**
+ * Dana.id.
+ * Copyright (c) 2017‐2021 All Rights Reserved.
+ */
 package com.openmusic.api.models.request;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author Ahmad Irfaan Hibatullah
- * @version $Id: UserRequest.java, v 0.1 2021‐10‐20 08.07 Ahmad Irfaan Hibatullah Exp $$
+ * @version $Id: UserLoginRequest.java, v 0.1 2021‐11‐06 12.59 Ahmad Irfaan Hibatullah Exp $$
  */
-public class UserRequest {
+public class UserLoginRequest {
+
 
     @NotBlank(message = "username tidak boleh ada yang kosong")
     private String username;
 
-    @NotBlank(message = "username tidak boleh ada yang kosong")
+    @NotBlank(message = "password tidak boleh ada yang kosong")
     private String password;
-
-    @NotEmpty(message = "nama tidak boleh kosong")
-    @NotNull(message = "nama tidak boleh kosong")
-    private String fullName;
 
     /**
      * Getter method for property username.
@@ -56,24 +55,5 @@ public class UserRequest {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    /**
-     * Getter method for property fullName.
-     *
-     * @return property value of fullName
-     */
-    public String getFullName() {
-        return fullName;
-    }
-
-    /**
-     * Setter method for property fullName.
-     *
-     * @param fullName value to be assigned to property fullName
-     */
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 }

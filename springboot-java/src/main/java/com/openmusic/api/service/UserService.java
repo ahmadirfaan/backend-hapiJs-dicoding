@@ -1,6 +1,7 @@
 package com.openmusic.api.service;
 
 import com.openmusic.api.entities.database.Users;
+import com.openmusic.api.models.request.UserLoginRequest;
 import com.openmusic.api.models.request.UserRequest;
 
 /**
@@ -11,5 +12,5 @@ public interface UserService {
     Users addUser(UserRequest request);
     Users verifyUsername(String username);
     Users findByUserId(String userId);
-    Users verifyUserCredentials(String username, String password);
+    Boolean verifyUserCredentials(UserLoginRequest request);
 }

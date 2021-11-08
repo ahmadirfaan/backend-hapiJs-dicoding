@@ -1,8 +1,6 @@
-
 package com.openmusic.api.entities.database;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
 

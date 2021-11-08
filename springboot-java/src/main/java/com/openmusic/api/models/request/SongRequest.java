@@ -1,20 +1,28 @@
 
 package com.openmusic.api.models.request;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * @author Ahmad Irfaan Hibatullah
  * @version $Id: SongRequest.java, v 0.1 2021‐10‐20 08.03 Ahmad Irfaan Hibatullah Exp $$
  */
 public class SongRequest {
 
+    @NotNull
     private String title;
 
+    @NotNull
     private Integer year;
 
+    @NotNull
     private String performer;
 
+    @NotNull
     private String genre;
 
+    @NotNull
     private Integer duration;
 
 
