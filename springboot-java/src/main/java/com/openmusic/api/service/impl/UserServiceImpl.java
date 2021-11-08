@@ -3,6 +3,7 @@ package com.openmusic.api.service.impl;
 
 import com.openmusic.api.entities.cache.UsersTemp;
 import com.openmusic.api.entities.database.Users;
+import com.openmusic.api.exception.ApplicationException;
 import com.openmusic.api.exception.ClientException;
 import com.openmusic.api.exception.EntityNotFoundException;
 import com.openmusic.api.models.request.UserLoginRequest;
@@ -34,22 +35,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Users addUser(UserRequest request) {
-        verifyUsername(request.getUsername());
-        Users users = new Users();
-        users.setUsername(request.getUsername());
-        users.setFullName(request.getFullName());
-        users.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
-        return usersRepository.save(users);
+        Users usersVerify = verifyUsername(request.getUsername());
+        if(usersVerify == null) {
+            Users users = new Users();
+            users.setUsername(request.getUsername());
+            users.setFullName(request.getFullName());
+            users.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+            return usersRepository.save(users);
+        } else {
+            throw new ClientException("gagal menambahkan user, sudah terdapat username tersebut");
+        }
+
     }
 
     @Override
     public Users verifyUsername(String username) {
-        Users users = usersRepository.findByUsername(username);
-        if(users != null) {
-            return users;
-        } else {
-            throw new ClientException("Gagal menambahkan user. Username sudah digunakan.");
-        }
+        return usersRepository.findByUsername(username);
     }
 
     @Override
