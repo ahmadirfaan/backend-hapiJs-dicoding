@@ -56,20 +56,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public Users findByUserId(String userId) {
         Users users = new Users();
-        UsersTemp usersTemp = userTempRepository.findById(userId).get();
+        UsersTemp usersTemp = userTempRepository.findById(userId).orElse(null);
         if (usersTemp != null) {
+            users.setId(usersTemp.getId());
             users.setUsername(usersTemp.getUsername());
             users.setPassword(usersTemp.getPassword());
             users.setFullName(usersTemp.getFullName());
-            return users;
         } else {
             users = usersRepository.findById(userId).orElse(null);
-            if (users != null) {
-                return users;
+            if (users != null || users.getDeletedDate() == null) {
+                usersTemp = new UsersTemp();
+                usersTemp.setId(users.getId());
+                usersTemp.setUsername(users.getUsername());
+                usersTemp.setFullName(users.getFullName());
+                usersTemp.setPassword(users.getPassword());
+                userTempRepository.save(usersTemp);
             } else {
                 throw new EntityNotFoundException("User tidak ditemukan");
             }
         }
+        return users;
     }
 
     @Override

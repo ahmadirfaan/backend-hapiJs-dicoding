@@ -2,6 +2,8 @@
 package com.openmusic.api.entities.database;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
@@ -17,12 +19,15 @@ import java.time.LocalDateTime;
 public abstract class AbstractTable<ID> {
 
 
+    @JsonIgnore
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
+    @JsonIgnore
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
+    @JsonIgnore
     @Column(name = "deleted_date")
     private LocalDateTime deletedDate;
 

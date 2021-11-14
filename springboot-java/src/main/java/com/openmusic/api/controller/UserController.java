@@ -32,7 +32,6 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<ResponseMessage<UserResponse>> addUser(@RequestBody @Valid UserRequest request) {
-        try {
             Users users = userService.addUser(request);
             UserResponse userResponse = new UserResponse();
             userResponse.setUserId(users.getId());
@@ -41,48 +40,14 @@ public class UserController {
             responseMessage.setMessage("User berhasil ditambahkan");
             responseMessage.setData(userResponse);
             return ResponseEntity.status(HttpStatus.CREATED).body(responseMessage);
-        } catch (Exception e) {
-            ResponseMessage<UserResponse> messageError = new ResponseMessage<>();
-            messageError.setStatus("error");
-            messageError.setData(null);
-            if(e instanceof ClientException) {
-                messageError.setMessage(((ClientException) e).getReason());
-                return ResponseEntity.status(((ClientException) e).getStatus())
-                        .body(messageError);
-            } else {
-                messageError.setMessage(e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(messageError);
-            }
-        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseMessage<String>> findById(@PathVariable String userId) {
-        try {
+    @GetMapping("/{userId}")
+    public ResponseEntity<ResponseMessage<Users>> findById(@PathVariable String userId) {
             Users users = userService.findByUserId(userId);
-            ResponseMessage<String> responseMessage = new ResponseMessage<>();
-            responseMessage.setMessage("User berhasil ditambahkan");
-            responseMessage.setData(users.getId());
+            ResponseMessage<Users> responseMessage = new ResponseMessage<>();
+            responseMessage.setMessage(null);
+            responseMessage.setData(users);
             return ResponseEntity.ok(responseMessage);
-        } catch (Exception e) {
-            ResponseMessage<String> messageError = new ResponseMessage<>();
-            messageError.setStatus("error");
-            messageError.setData(null);
-            if(e instanceof ClientException) {
-                messageError.setMessage(((ClientException) e).getReason());
-                return ResponseEntity.status(((ClientException) e).getStatus())
-                        .body(messageError);
-            } else if(e instanceof EntityNotFoundException) {
-                messageError.setMessage(((EntityNotFoundException) e).getReason());
-                return ResponseEntity.status(((EntityNotFoundException) e).getStatus())
-                        .body(messageError);
-            }
-            else {
-                messageError.setMessage(e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(messageError);
-            }
-        }
     }
 }

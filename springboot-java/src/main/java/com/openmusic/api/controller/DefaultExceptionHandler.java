@@ -1,19 +1,16 @@
-/**
- * Dana.id.
- * Copyright (c) 2017‐2021 All Rights Reserved.
- */
-package com.openmusic.api.exception;
+package com.openmusic.api.controller;
 
+import com.openmusic.api.exception.*;
 import com.openmusic.api.models.response.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,10 +38,15 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private ResponseEntity handleException(HttpStatus status, String message) {
+        ResponseMessage<Object> body = ResponseMessage.error("fail", message);
+        return ResponseEntity.status(status.value()).body(body);
+    }
+
+    private ResponseEntity handleExceptionFromMessageSource(HttpStatus status, String message) {
         String localizedMessage = messageSource.
                 getMessage(message, null, message, LocaleContextHolder.getLocale());
-        ResponseMessage<Object> body = ResponseMessage.error(String.valueOf(status.value()), localizedMessage);
-        return ResponseEntity.ok(body);
+        ResponseMessage<Object> body = ResponseMessage.error("fail", localizedMessage);
+        return ResponseEntity.status(status.value()).body(body);
     }
 
     private ResponseEntity<Object> handleBindingResult(BindingResult result, HttpStatus status) {
@@ -69,28 +71,58 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ApplicationException.class)
-    public ResponseEntity<Object> handleApplicationException(ApplicationException e) {
-        return handleException(e.getStatus(), e.getMessage());
+    public ResponseEntity handleApplicationException(ApplicationException ex) {
+        logger.error("Application Exception : ", ex);
+        return handleException(ex.getStatus(), ex.getReason());
+    }
+
+    @ExceptionHandler(ClientException.class)
+    public ResponseEntity handleClientException(ClientException ex) {
+        logger.error("Client Exception : ", ex);
+        return handleException(ex.getStatus(), ex.getReason());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity handleEntityNotFoundException(EntityNotFoundException ex) {
+        logger.error("Entity Not Found Exception : ", ex);
+        return handleException(ex.getStatus(), ex.getReason());
+    }
+
+    @ExceptionHandler(PathNotFoundException.class)
+    public ResponseEntity handlePathNotFoundException(PathNotFoundException ex) {
+        logger.error("Path Not Found Exception : ", ex);
+        return handleException(ex.getStatus(), ex.getReason());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity handleAuthenticationException(AuthenticationException ex) {
+        logger.error("Authentication Exception : ", ex);
+        return handleException(ex.getStatus(), ex.getReason());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleUnknownException(Exception e) {
+    public ResponseEntity handleUnknownException(Exception e) {
         logger.error("Unknown Exception : ", e);
         return handleException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return handleException(status);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return handleBindingResult(ex.getBindingResult(), status);
     }
 
     @Override
-    protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity handleBindException(BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return handleBindingResult(ex ,status);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return handleExceptionFromMessageSource(status, ex.getMessage());
     }
 }

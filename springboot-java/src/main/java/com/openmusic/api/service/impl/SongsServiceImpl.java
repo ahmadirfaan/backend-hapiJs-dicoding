@@ -3,8 +3,10 @@ package com.openmusic.api.service.impl;
 
 import com.openmusic.api.entities.cache.SongsTemp;
 import com.openmusic.api.entities.database.Songs;
-import com.openmusic.api.exception.EntityNotFoundException;
+import com.openmusic.api.exception.PathNotFoundException;
 import com.openmusic.api.models.request.SongRequest;
+import com.openmusic.api.models.response.GetAllSongResponse;
+import com.openmusic.api.models.response.SongResponse;
 import com.openmusic.api.repository.jpa.SongsRepository;
 import com.openmusic.api.repository.redis.SongTempRepository;
 import com.openmusic.api.service.SongService;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ahmad Irfaan Hibatullah
@@ -43,13 +46,17 @@ public class SongsServiceImpl implements SongService {
     }
 
     @Override
-    public List<Songs> findAllSong() {
-        return null;
+    public List<GetAllSongResponse> findAllSong() {
+        return songsRepository.findAll()
+                .stream()
+                .filter(songs -> songs.getDeletedDate() == null)
+                .map(songs -> new GetAllSongResponse(songs.getId(), songs.getTitle(), songs.getPerformer()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Songs findSongById(String songId) {
-        Songs entities = new Songs();
+    public SongResponse findSongById(String songId) {
+        SongResponse entities = new SongResponse();
         SongsTemp songTemp = songTempRepository.findById(songId).orElse(null);
         if (songTemp != null) {
             entities.setId(songTemp.getId());
@@ -58,11 +65,17 @@ public class SongsServiceImpl implements SongService {
             entities.setTitle(songTemp.getTitle());
             entities.setGenre(songTemp.getGenre());
             entities.setDuration(songTemp.getDuration());
+            entities.setInsertedAt(songTemp.getCreatedAt());
+            entities.setUpdatedAt(songTemp.getUpdatedAt());
         } else {
-            entities = songsRepository.findById(songId).orElse(null);
-            if (entities == null || entities.getDeletedDate() != null) {
-                throw new EntityNotFoundException("Data lagu tidak ditemukan");
+            Songs song = songsRepository.findById(songId).orElse(null);
+            if (song == null || song.getDeletedDate() != null) {
+                throw new PathNotFoundException("Data lagu tidak ditemukan");
             }
+            if(song.getUpdatedDate() == null) {
+                song.setUpdatedDate(song.getCreatedDate());
+            }
+            // save song by id to the redis
             SongsTemp temp = new SongsTemp();
             temp.setId(entities.getId());
             temp.setYear(entities.getYear());
@@ -70,30 +83,45 @@ public class SongsServiceImpl implements SongService {
             temp.setTitle(entities.getTitle());
             temp.setGenre(entities.getGenre());
             temp.setDuration(entities.getDuration());
+            temp.setCreatedAt(entities.getInsertedAt());
             songTempRepository.save(temp);
+
+            //set response from repository
+            entities.setId(song.getId());
+            entities.setYear(song.getYear());
+            entities.setPerformer(song.getPerformer());
+            entities.setTitle(song.getTitle());
+            entities.setGenre(song.getGenre());
+            entities.setDuration(song.getDuration());
+            entities.setInsertedAt(song.getCreatedDate());
+            entities.setUpdatedAt(song.getUpdatedDate());
         }
         return entities;
     }
 
     @Override
     public Songs updateSongByID(SongRequest request, String songId) {
-        Songs songs = findSongById(songId);
+        SongResponse songById = findSongById(songId);
+        Songs songs = new Songs();
+        songs.setId(songById.getId());
         songs.setDuration(request.getDuration());
         songs.setGenre(request.getGenre());
         songs.setPerformer(request.getPerformer());
         songs.setTitle(request.getTitle());
         songs.setYear(request.getYear());
-        songs = songsRepository.save(songs);
         songTempRepository.deleteById(songId);
+        songs = songsRepository.save(songs);
         return songs;
     }
 
     @Override
-    public Songs deleteSongByID(SongRequest request, String songId) {
-        Songs songs = findSongById(songId);
+    public Songs deleteSongByID(String songId) {
+        SongResponse songResponse = findSongById(songId);
+        Songs songs = new Songs();
+        songs.setId(songResponse.getId());
         songs.setDeletedDate(LocalDateTime.now());
-        songs = songsRepository.save(songs);
         songTempRepository.deleteById(songId);
+        songs = songsRepository.save(songs);
         return songs;
     }
 }

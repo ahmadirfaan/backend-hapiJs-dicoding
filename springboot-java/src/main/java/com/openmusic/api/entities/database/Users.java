@@ -1,5 +1,6 @@
 package com.openmusic.api.entities.database;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Users extends AbstractTable<String> {
 
     private String username;
 
+    @JsonIgnore
     private String password;
 
     private String fullName;

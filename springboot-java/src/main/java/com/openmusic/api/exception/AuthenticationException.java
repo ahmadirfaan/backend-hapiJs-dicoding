@@ -1,7 +1,4 @@
-/**
- * Dana.id.
- * Copyright (c) 2017‐2021 All Rights Reserved.
- */
+
 package com.openmusic.api.exception;
 
 import org.springframework.http.HttpStatus;

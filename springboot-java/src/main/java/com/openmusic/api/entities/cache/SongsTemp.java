@@ -5,6 +5,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.redis.core.RedisHash;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
  * @author Ahmad Irfaan Hibatullah
@@ -26,6 +27,47 @@ public class SongsTemp {
 
     private Integer duration;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    /**
+     * Getter method for property createdAt.
+     *
+     * @return property value of createdAt
+     */
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    /**
+     * Setter method for property createdAt.
+     *
+     * @param createdAt value to be assigned to property createdAt
+     */
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    /**
+     * Getter method for property updatedAt.
+     *
+     * @return property value of updatedAt
+     */
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * Setter method for property updatedAt.
+     *
+     * @param updatedAt value to be assigned to property updatedAt
+     */
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     public String getTitle() {
         return title;

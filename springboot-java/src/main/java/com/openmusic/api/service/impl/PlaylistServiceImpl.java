@@ -8,6 +8,7 @@ import com.openmusic.api.entities.database.Songs;
 import com.openmusic.api.entities.database.Users;
 import com.openmusic.api.exception.EntityNotFoundException;
 import com.openmusic.api.exception.UnauthorizedException;
+import com.openmusic.api.models.response.SongResponse;
 import com.openmusic.api.repository.jpa.PlaylistRepository;
 import com.openmusic.api.repository.jpa.PlaylistSongRepository;
 import com.openmusic.api.repository.redis.PlaylistSongTempRepository;
@@ -66,9 +67,8 @@ public class PlaylistServiceImpl implements PlaylistService {
     public Playlists deletePlaylistById(String playlistId) {
         Playlists playlists = findPlaylistById(playlistId);
         playlists.setDeletedDate(LocalDateTime.now());
+        playlistTempRepository.deleteById(playlistId);
         playlists = playlistRepository.save(playlists);
-        PlaylistsTemp playlistsTemp = playlistTempRepository.findById(playlistId).get();
-        playlistTempRepository.delete(playlistsTemp);
         return playlists;
     }
 
@@ -76,9 +76,10 @@ public class PlaylistServiceImpl implements PlaylistService {
     public PlaylistSong addSongToPlaylist(String playlistId, String songId) {
         PlaylistSong playlistSong = new PlaylistSong();
         Playlists playlist = findPlaylistById(playlistId);
-        Songs songs = songService.findSongById(songId);
+        SongResponse songs = songService.findSongById(songId);
+        Songs dataSong = songs.convertSongResponseToSong();
         playlistSong.setPlaylist(playlist);
-        playlistSong.setSong(songs);
+        playlistSong.setSong(dataSong);
         playlistSong = playlistSongRepository.save(playlistSong);
         List<PlaylistSongTemp> playlistSongTempList =
                 playlistSongTempRepository.findPlaylistSongTempsByPlaylistId(playlistId);
@@ -91,7 +92,7 @@ public class PlaylistServiceImpl implements PlaylistService {
         List<PlaylistSong> playlistSongList = new ArrayList<>();
         List<PlaylistSongTemp> playlistSongTempsByPlaylistId =
                 playlistSongTempRepository.findPlaylistSongTempsByPlaylistId(playlistId);
-        if (playlistSongTempsByPlaylistId.size() == 0 || playlistSongTempsByPlaylistId == null) {
+        if (playlistSongTempsByPlaylistId.size() == 0) {
             playlistSongList = playlistSongRepository.findPlaylistSongsByPlaylistId(playlistId);
             List<PlaylistSongTemp> playlistSongTempList = new ArrayList<>();
             for (PlaylistSong playlist : playlistSongList) {
@@ -139,14 +140,15 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     public PlaylistSong deleteSongAtPlaylist(String playlistId, String songId) {
         Playlists playlists = findPlaylistById(playlistId);
-        Songs songs = songService.findSongById(songId);
+        SongResponse songs = songService.findSongById(songId);
+        Songs dataSong = songs.convertSongResponseToSong();
         PlaylistSong playlistSong = playlistSongRepository.
-                findPlaylistSongsByPlaylistAndSong(playlists, songs);
+                findPlaylistSongsByPlaylistAndSong(playlists, dataSong);
         if (playlistSong == null) {
             throw new EntityNotFoundException("Not Found Playlist and Song");
         }
         PlaylistSongTemp playlistSongTemp =
-                playlistSongTempRepository.findPlaylistSongTempsByPlaylistAndSong(playlists, songs);
+                playlistSongTempRepository.findPlaylistSongTempsByPlaylistAndSong(playlists, dataSong);
         playlistSongTempRepository.delete(playlistSongTemp);
         return null;
     }
