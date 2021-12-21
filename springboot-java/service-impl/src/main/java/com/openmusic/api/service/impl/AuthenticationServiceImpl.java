@@ -33,7 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public Authentication verifyRefreshToken(String token) {
         Authentication entity = repository.findByToken(token);
-        if (entity.getDeletedDate() != null || entity == null) {
+        if (entity == null || entity.getDeletedDate() != null) {
             throw new EntityNotFoundException();
         } else {
             return entity;

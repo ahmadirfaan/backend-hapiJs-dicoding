@@ -9,7 +9,7 @@ import javax.persistence.*;
  * @version $Id: Playlists.java, v 0.1 2021‐10‐19 19.08 Ahmad Irfaan Hibatullah Exp $$
  */
 @Entity
-@Table(name = "playlist")
+@Table(name = "playlists")
 public class Playlists extends AbstractTable<String> {
 
     @Id
@@ -20,7 +20,7 @@ public class Playlists extends AbstractTable<String> {
     private String name;
 
     @OneToOne()
-    @JoinColumn(name = "owner")
+    @JoinColumn(name = "owners")
     private Users owner;
 
     /**

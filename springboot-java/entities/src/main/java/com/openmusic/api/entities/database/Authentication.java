@@ -10,7 +10,7 @@ import javax.persistence.*;
  * @version $Id: Authentication.java, v 0.1 2021‐10‐19 19.07 Ahmad Irfaan Hibatullah Exp $$
  */
 @Entity
-@Table(name = "authentication")
+@Table(name = "authentications")
 public class Authentication extends AbstractTable<String>{
 
     @Id

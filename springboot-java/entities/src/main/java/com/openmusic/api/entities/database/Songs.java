@@ -10,7 +10,7 @@ import javax.persistence.*;
  */
 
 @Entity
-@Table(name = "song")
+@Table(name = "songs")
 public class Songs extends AbstractTable<String> {
 
     @Id

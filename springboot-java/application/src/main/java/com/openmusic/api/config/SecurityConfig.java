@@ -1,7 +1,4 @@
-/**
- * Dana.id.
- * Copyright (c) 2017‐2021 All Rights Reserved.
- */
+
 package com.openmusic.api.config;
 
 import org.springframework.context.annotation.Bean;
