@@ -4,6 +4,7 @@ package com.openmusic.api.service.impl;
 import com.openmusic.api.entities.cache.SongsTemp;
 import com.openmusic.api.entities.database.Songs;
 import com.openmusic.api.exception.PathNotFoundException;
+import com.openmusic.api.models.converter.SongConverter;
 import com.openmusic.api.models.request.SongRequest;
 import com.openmusic.api.models.response.GetAllSongResponse;
 import com.openmusic.api.models.response.SongResponse;
@@ -102,8 +103,7 @@ public class SongsServiceImpl implements SongService {
     @Override
     public Songs updateSongByID(SongRequest request, String songId) {
         SongResponse songById = findSongById(songId);
-        Songs songs = new Songs();
-        songs.setId(songById.getId());
+        Songs songs = SongConverter.convertSongResponseToSong(songById);
         songs.setDuration(request.getDuration());
         songs.setGenre(request.getGenre());
         songs.setPerformer(request.getPerformer());
@@ -117,8 +117,8 @@ public class SongsServiceImpl implements SongService {
     @Override
     public Songs deleteSongByID(String songId) {
         SongResponse songResponse = findSongById(songId);
-        Songs songs = new Songs();
-        songs.setId(songResponse.getId());
+        Songs songs = SongConverter.convertSongResponseToSong(songResponse);
+        songs.setUpdatedDate(LocalDateTime.now());
         songs.setDeletedDate(LocalDateTime.now());
         songTempRepository.deleteById(songId);
         songs = songsRepository.save(songs);

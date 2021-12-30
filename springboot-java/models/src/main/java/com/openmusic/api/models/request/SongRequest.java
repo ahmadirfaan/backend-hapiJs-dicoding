@@ -1,6 +1,7 @@
 
 package com.openmusic.api.models.request;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -9,16 +10,16 @@ import javax.validation.constraints.NotNull;
  */
 public class SongRequest {
 
-    @NotNull
+    @NotBlank
     private String title;
 
     @NotNull
     private Integer year;
 
-    @NotNull
+    @NotBlank
     private String performer;
 
-    @NotNull
+    @NotBlank
     private String genre;
 
     @NotNull

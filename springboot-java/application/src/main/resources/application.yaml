@@ -5,13 +5,19 @@ logging:
       springframework:
         web: debug
 spring:
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:5000/auth/realms/irfaan
+#          jwk-set-uri: http://localhost:5000/auth/realms/irfaan/protocol/openid-connect/certs
   redis:
     port: 6379
     host: localhost
     timeout: 10s
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/open-music-api
+    url: jdbc:mysql://0.0.0.0:3306/open-music-api
     username: root
     password: P@ssw0rd
   jpa:
@@ -23,3 +29,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
   messages.basename: i18n/messages
+com:
+  openmucic:
+    api:
+      ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY:cGFzc3dvcmQ=}
+      REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY:UEBzc3cwcmQ=}
+      ACCESS_TOKEN_AGE: ${ACCESS_TOKEN_AGE:86400}
+      REFRESH_TOKEN_AGE: ${ACCESS_TOKEN_AGE:2592000$}

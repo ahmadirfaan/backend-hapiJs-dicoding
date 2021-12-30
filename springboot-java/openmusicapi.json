@@ -1,0 +1,457 @@
+{
+  "openapi": "3.0.3",
+  "externalDocs": {
+    "description": "Link github project",
+    "url": "https://github.com/ahmadirfaan/open-music-api"
+  },
+  "info": {
+    "contact": {
+      "name": "Ahmad Irfaan Hibatullah",
+      "url": "https://github.com/ahmadirfaan/open-music-api",
+      "email": "irfaan.hibatullah@gmail.com"
+    },
+    "description": "OpenAPI for for music RESTful API",
+    "license": {
+      "name": "Tidak Berlisensi",
+      "url": "https://github.com/ahmadirfaan/open-music-api"
+    },
+    "title": "Open Music API",
+    "version": "1"
+  },
+  "paths": {
+    "/songs": {
+      "get": {
+        "tags": [
+          "Songs"
+        ],
+        "summary": "Get All Songs",
+        "description": "Get All songs in database",
+        "responses": {
+          "200": {
+            "description": "Getting All Songs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseMessageGetAllSongs"
+                },
+                "examples": {
+                  "Get All Songs": {
+                    "$ref": "#/components/schemas/ResponseMessageGetAllSongs"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/genre"
+          },
+          {
+            "$ref": "#/components/parameters/performer"
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Songs"
+        ],
+        "summary": "Add new Songs",
+        "description": "Add new songs in database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongsRequest"
+              },
+              "examples": {
+                "Puan Kelana": {
+                  "$ref": "#/components/examples/Silampukau"
+                },
+                "Heart": {
+                  "$ref": "#/components/examples/SMASH"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success create new song",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseMessageAddSong"
+                },
+                "examples": {
+                  "Silampukau": {
+                    "$ref": "#/components/examples/SilampukauResponse"
+                  },
+                  "SMASH": {
+                    "$ref": "#/components/examples/SMASHResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/songs/{songId}": {
+      "delete": {
+        "tags": [
+          "Songs"
+        ],
+        "summary": "Delete  Songs",
+        "description": "Delete song with songId in database",
+        "responses": {
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/songId"
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Songs"
+        ],
+        "summary": "Get specific song with songId",
+        "description": "Get specific song with songId from database",
+        "responses": {
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/songId"
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Songs"
+        ],
+        "summary": "Update specific song with songId",
+        "description": "Update specific song with songId from database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SongsRequest"
+              },
+              "examples": {
+                "Silampukau - Puan Kelana": {
+                  "$ref": "#/components/examples/Silampukau"
+                },
+                "SMASH - Heart": {
+                  "$ref": "#/components/examples/SMASH"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/songId"
+          }
+        ]
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Open Music RESTful API Server",
+      "url": "https://{environment}.openmusicapi.com/api/v1",
+      "variables": {
+        "environment": {
+          "description": "Server Environment",
+          "default": "dev",
+          "enum": [
+            "dev",
+            "test",
+            "sit",
+            "pre",
+            "prod"
+          ]
+        }
+      }
+    }
+  ],
+  "components": {
+    "parameters": {
+      "songId": {
+        "name": "songId",
+        "required": true,
+        "in": "path",
+        "description": "specific id for song",
+        "schema": {
+          "type": "string",
+          "nullable": false
+        },
+        "examples": {
+          "generate": {
+            "description": "example UUID",
+            "value": "7cctXZmH5kSqVg8VKY6acA=="
+          },
+          "sample": {
+            "description": "example UUID number 2 ",
+            "value": "USqgfIisZUGjn1GmRv7i7A=="
+          }
+        }
+      },
+      "genre": {
+        "name": "genre",
+        "required": false,
+        "in": "query",
+        "description": "filter all song with specific genre",
+        "schema": {
+          "type": "string",
+          "nullable": false
+        },
+        "examples": {
+          "dangdut": {
+            "description": "example genre dangdut",
+            "value": "Dangdut"
+          },
+          "rock": {
+            "description": "example genre rock",
+            "value": "Rock"
+          }
+        }
+      },
+      "performer": {
+        "name": "singer",
+        "required": false,
+        "in": "query",
+        "description": "filter all song with specific singer",
+        "schema": {
+          "type": "string",
+          "nullable": false
+        },
+        "examples": {
+          "Silampukau": {
+            "description": "Searching song by Silampukau",
+            "value": "Silampukau"
+          },
+          "SMASH": {
+            "description": "Searching song by SMASH",
+            "value": "SMASH"
+          }
+        }
+      },
+      "userId": {
+        "name": "userId",
+        "required": true,
+        "in": "path",
+        "description": "specific id for user",
+        "schema": {
+          "type": "string",
+          "nullable": false
+        },
+        "examples": {
+          "generate": {
+            "description": "example UUID",
+            "value": "7cctXZmH5kSqVg8VKY6acA=="
+          },
+          "sample": {
+            "description": "example UUID number 2 ",
+            "value": "USqgfIisZUGjn1GmRv7i7A=="
+          }
+        }
+      }
+    },
+    "schemas": {
+      "SongsRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "year",
+          "performer",
+          "genre",
+          "duration"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "year": {
+            "type": "number",
+            "format": "int32"
+          },
+          "performer": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "format": "int32"
+          }
+        }
+      },
+      "ResponseMessage": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ResponseMessageAddSong": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "songId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ResponseMessageGetAllSongs": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ResponseMessage"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/ListSongs"
+              }
+            }
+          }
+        ]
+      },
+      "ListSongs": {
+        "type": "object",
+        "properties": {
+          "songs": {
+            "type": "array",
+            "description": "List all songs",
+            "minItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/GetSongResponse"
+            }
+          }
+        }
+      },
+      "GetSongResponse": {
+        "type": "object",
+        "properties": {
+          "songId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "performer": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "examples": {
+      "Silampukau": {
+        "description": "Post song with genre folk",
+        "value": {
+          "title": "Puan Kelana",
+          "year": 2012,
+          "performer": "Silampukau",
+          "genre": "Folk",
+          "duration": 200
+        }
+      },
+      "SMASH": {
+        "description": "Post song with genre pop",
+        "value": {
+          "title": "Heart",
+          "year": 2009,
+          "performer": "SMASH",
+          "genre": "Pop",
+          "duration": 185
+        }
+      },
+      "GetAllSongs": {
+        "description": "Get List All Songs",
+        "value": {
+          "status": "success",
+          "message": null,
+          "data": {
+            "songs": [
+              {
+                "id": "2c9b98937e0a071e017e0a0766f90000",
+                "title": "Puan Kelana",
+                "performer": "Silampukau"
+              },
+              {
+                "id": "2c9b98937e0a071e017e0a10e7cd0001",
+                "title": "Heart",
+                "performer": "Smash"
+              }
+            ]
+          }
+        }
+      },
+      "SilampukauResponse": {
+        "description": "Create new song Puan Kelana",
+        "value": {
+          "status": "success",
+          "message": "Lagu berhasil ditambahkan",
+          "data": {
+            "songId": "2c9b98937e0a071e017e0a0766f90000"
+          }
+        }
+      },
+      "SMASHResponse": {
+        "description": "Create new song Puan Heart",
+        "value": {
+          "status": "success",
+          "message": "Lagu berhasil ditambahkan",
+          "data": {
+            "songId": "2c9b98937e0a071e017e0a10e7cd0001"
+          }
+        }
+      }
+    }
+  }
+}
