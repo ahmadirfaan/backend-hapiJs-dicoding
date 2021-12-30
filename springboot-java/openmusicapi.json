@@ -204,6 +204,14 @@
     }
   ],
   "components": {
+    "securitySchemes": {
+      "AuthMusicAPI": {
+        "description": "Authentication for Open Music API",
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "parameters": {
       "songId": {
         "name": "songId",
