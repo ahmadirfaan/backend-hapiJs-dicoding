@@ -1,22 +1,22 @@
 
 package com.openmusic.api.controllers;
 
+import com.openmusic.api.entities.database.PlaylistSong;
 import com.openmusic.api.entities.database.Playlists;
+import com.openmusic.api.models.request.AddSongToPlaylist;
 import com.openmusic.api.models.request.PlaylistRequest;
 import com.openmusic.api.models.response.PlaylistOwnerResponse;
 import com.openmusic.api.models.response.ResponseMessage;
+import com.openmusic.api.models.response.SongAtPlaylistResponse;
 import com.openmusic.api.service.CollaborationService;
 import com.openmusic.api.service.PlaylistService;
-import com.openmusic.api.service.UserService;
-import com.openmusic.api.service.util.JwtTokenUtil;
 import com.openmusic.api.util.JwtExtractUserId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,23 +34,23 @@ public class PlaylistController {
 
     protected final CollaborationService collaborationService;
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(PlaylistController.class);
 
     @Autowired
-    public PlaylistController(PlaylistService playlistService, UserService service, JwtTokenUtil jwtTokenUtil, CollaborationService collaborationService) {
+    public PlaylistController(PlaylistService playlistService, CollaborationService collaborationService) {
         this.playlistService = playlistService;
         this.collaborationService = collaborationService;
     }
 
+
     @PostMapping
-    public ResponseEntity<ResponseMessage<Map<String,String>>> postPlaylist(@RequestBody PlaylistRequest request,
-                                                                            @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ResponseMessage<Map<String, String>>> postPlaylist(@RequestBody PlaylistRequest request,
+                                                                             @RequestHeader("Authorization") String token) {
         String userId = JwtExtractUserId.extractUserIdFromToken(token);
         Playlists playlist = playlistService.addPlaylist(request.getName(), userId);
-        ResponseMessage<Map<String,String>> responseMessage = new ResponseMessage<>();
+        ResponseMessage<Map<String, String>> responseMessage = new ResponseMessage<>();
         responseMessage.setStatus("success");
         responseMessage.setMessage("Playlist berhasil ditambahkan");
-        Map<String,String> data = new HashMap<>();
+        Map<String, String> data = new HashMap<>();
         data.put("playlistId", playlist.getId());
         responseMessage.setData(data);
 
@@ -58,7 +58,7 @@ public class PlaylistController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseMessage<Map<String,Object>>> getAllPlaylist(
+    public ResponseEntity<ResponseMessage<Map<String, Object>>> getAllPlaylist(
             @RequestHeader("Authorization") String token) {
         String userId = JwtExtractUserId.extractUserIdFromToken(token);
         List<PlaylistOwnerResponse> responseList = collaborationService.getAllPlaylist(userId);
@@ -69,5 +69,55 @@ public class PlaylistController {
         message.setData(playlistMap);
         message.setStatus("success");
         return ResponseEntity.status(HttpStatus.OK).body(message);
+    }
+
+    @DeleteMapping("/{playlistId}")
+    public ResponseEntity<ResponseMessage<String>> deletePlaylistById(@PathVariable String playlistId,
+                                                                      @RequestHeader("Authorization") String token) {
+        String userId = JwtExtractUserId.extractUserIdFromToken(token);
+        ResponseMessage<String> responseMessage = new ResponseMessage<>();
+        Playlists playlists = playlistService.verifyPlaylistOwner(playlistId, userId);
+        playlistService.deletePlaylistById(playlists.getId());
+        responseMessage.setMessage("Playlist berhasil dihapus");
+        responseMessage.setData(null);
+        responseMessage.setStatus("success");
+        return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
+    }
+
+    @PostMapping("/{playlistId}/songs")
+    public ResponseEntity<ResponseMessage<String>> addSongToPlaylist(@PathVariable String playlistId,
+                                                                                  @RequestHeader("Authorization") String token,
+                                                                                  @RequestBody AddSongToPlaylist request) {
+        String userId = JwtExtractUserId.extractUserIdFromToken(token);
+        ResponseMessage<String> responseMessage = new ResponseMessage<>();
+        Playlists playlists = playlistService.verifyPlaylistOwner(playlistId, userId);
+        playlistService.addSongToPlaylist(playlists.getId(), request.getSongId());
+        responseMessage.setMessage("Lagu berhasil ditambahkan ke playlist");
+        responseMessage.setData(null);
+        responseMessage.setStatus("success");
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseMessage);
+    }
+
+    @GetMapping("/{playlistId}/songs")
+    public ResponseEntity<ResponseMessage<Map<String, Object>>> getSongAtPlaylist(@PathVariable String playlistId,
+                                                                                  @RequestHeader("Authorization") String token) {
+        String userId = JwtExtractUserId.extractUserIdFromToken(token);
+        ResponseMessage<Map<String, Object>> responseMessage = new ResponseMessage<>();
+        Playlists playlists = playlistService.verifyPlaylistOwner(playlistId, userId);
+        List<PlaylistSong> playlistSongList = playlistService.getSongAtPlaylist(playlists.getId());
+        List<SongAtPlaylistResponse> data = new ArrayList<>();
+        playlistSongList.forEach(ps -> {
+            SongAtPlaylistResponse response = new SongAtPlaylistResponse();
+            response.setTitle(ps.getSong().getTitle());
+            response.setSongId(ps.getSong().getId());
+            response.setPerformer(ps.getSong().getPerformer());
+            data.add(response);
+        });
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("songs", data);
+        responseMessage.setMessage("Playlist Berhasil Ditambahkan");
+        responseMessage.setData(dataMap);
+        responseMessage.setStatus("success");
+        return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
  */
 
 @Configuration
-@ConfigurationProperties(prefix = "application")
+@ConfigurationProperties(prefix = "com.openmusic.api")
 public class ApplicationProperties {
 
     private String accessTokenKey;

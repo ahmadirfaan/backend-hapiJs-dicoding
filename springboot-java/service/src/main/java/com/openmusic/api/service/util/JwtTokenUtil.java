@@ -29,19 +29,19 @@ public class JwtTokenUtil implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenUtil.class);
 
-    @Value("${application.accessTokenKey}")
+    @Value("${com.openmusic.api.access-token-age}")
     private String accessToken;
 
-    @Value("${application.refreshTokenKey}")
+    @Value("${com.openmusic.api.refresh-token-age}")
     private String refreshToken;
 
-    @Value("${application.accessTokenAge}")
+    @Value("${com.openmusic.api.access-token-age}")
     private Long accessTokenAge;
 
     @Value("${spring.application.name}")
     private String applicationName;
 
-    @Value("${application.refreshTokenAge}")
+    @Value("${com.openmusic.api.refresh-token-age}")
     private Long refreshTokenAge;
 
     @PostConstruct

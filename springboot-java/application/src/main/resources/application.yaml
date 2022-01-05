@@ -1,16 +1,15 @@
-
 logging:
   level:
     org:
       springframework:
         web: debug
 spring:
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          issuer-uri: http://localhost:5000/auth/realms/irfaan
-#          jwk-set-uri: http://localhost:5000/auth/realms/irfaan/protocol/openid-connect/certs
+  #  security:
+  #    oauth2:
+  #      resourceserver:
+  #        jwt:
+  #          issuer-uri: http://localhost:5000/auth/realms/irfaan
+  #          jwk-set-uri: http://localhost:5000/auth/realms/irfaan/protocol/openid-connect/certs
   redis:
     port: 6379
     host: localhost
@@ -31,10 +30,12 @@ spring:
   messages.basename: i18n/messages
   application:
     name: Open Music API
-application:
-  accessTokenKey: ${ACCESS_TOKEN_KEY}
-  refreshTokenKey: ${REFRESH_TOKEN_KEY}
-  accessTokenAge: ${ACCESS_TOKEN_AGE}
-  refreshTokenAge: ${ACCESS_TOKEN_AGE}
 server:
   port: 5000
+com:
+  openmusic:
+    api:
+      refresh-token-key: ${REFRESH_TOKEN_KEY}
+      access-token-age: ${ACCESS_TOKEN_AGE}
+      refresh-token-age: ${ACCESS_TOKEN_AGE}
+      access-token-key: ${ACCESS_TOKEN_KEY}

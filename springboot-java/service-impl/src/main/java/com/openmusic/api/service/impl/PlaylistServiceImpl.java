@@ -102,7 +102,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                 playlistSongTemp.setId(playlist.getId());
                 playlistSongTempList.add(playlistSongTemp);
             }
-            playlistSongTempRepository.saveAll(playlistSongTempsByPlaylistId);
+            playlistSongTempRepository.saveAll(playlistSongTempList);
         } else {
             for (PlaylistSongTemp playlistSongTemp : playlistSongTempsByPlaylistId) {
                 PlaylistSong playlistSong = new PlaylistSong();

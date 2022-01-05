@@ -1,14 +1,15 @@
 
-package com.openmusic.api.models.response;
+package com.openmusic.api.models.request;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author Ahmad Irfaan Hibatullah
- * @version $Id: AddSongResponse.java, v 0.1 2021‐11‐14 15.22 Ahmad Irfaan Hibatullah Exp $$
+ * @version $Id: AddSongToPlaylist.java, v 0.1 2022‐01‐05 17.09 Ahmad Irfaan Hibatullah Exp $$
  */
+public class AddSongToPlaylist {
 
-public class AddSongResponse {
-
-
+    @NotBlank
     private String songId;
 
     /**
