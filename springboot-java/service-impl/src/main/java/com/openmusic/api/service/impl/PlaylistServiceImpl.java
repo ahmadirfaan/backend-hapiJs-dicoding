@@ -161,4 +161,9 @@ public class PlaylistServiceImpl implements PlaylistService {
         }
         return playlists;
     }
+
+    @Override
+    public List<Playlists> getAllPlaylist() {
+        return playlistRepository.findAll();
+    }
 }

@@ -6,6 +6,7 @@ import com.openmusic.api.entities.database.Users;
 import com.openmusic.api.exception.ApplicationException;
 import com.openmusic.api.exception.ClientException;
 import com.openmusic.api.exception.EntityNotFoundException;
+import com.openmusic.api.models.response.PlaylistOwnerResponse;
 import com.openmusic.api.repository.jpa.CollaborationsRepository;
 import com.openmusic.api.service.CollaborationService;
 import com.openmusic.api.service.PlaylistService;
@@ -14,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ahmad Irfaan Hibatullah
@@ -104,9 +108,38 @@ public class CollaborationServiceImpl implements CollaborationService {
             try {
                 verifyCollaborator(playlistId, owner);
             } catch (Exception ex){
-                throw ex;
+                throw new RuntimeException();
             }
         }
         return true;
     }
+
+    @Override
+    public List<PlaylistOwnerResponse> getAllPlaylist(String owner) {
+        // playlist response from collaborations
+        List<Collaborations> collaborationsList = collaborationsRepository.findAll();
+        collaborationsList = collaborationsList.stream().filter(collaborations -> collaborations.getUsers().getId().equals(owner)).collect(Collectors.toList());
+        List<PlaylistOwnerResponse> responseList = new ArrayList<>();
+        collaborationsList.forEach(collaborations -> {
+            PlaylistOwnerResponse playlistOwnerResponse = new PlaylistOwnerResponse();
+            playlistOwnerResponse.setId(collaborations.getPlaylists().getId());
+            playlistOwnerResponse.setName(collaborations.getPlaylists().getName());
+            playlistOwnerResponse.setUsername(collaborations.getUsers().getUsername());
+            responseList.add(playlistOwnerResponse);
+        });
+
+        //playlist response from table playlist
+        List<Playlists> playlistsList = playlistService.getAllPlaylist();
+        playlistsList = playlistsList.stream().filter(playlists -> playlists.getOwner().getId().equals(owner)).collect(Collectors.toList());
+        playlistsList.forEach(playlists -> {
+            PlaylistOwnerResponse playlistOwnerResponse = new PlaylistOwnerResponse();
+            playlistOwnerResponse.setId(playlists.getId());
+            playlistOwnerResponse.setName(playlists.getName());
+            playlistOwnerResponse.setUsername(playlists.getOwner().getUsername());
+            responseList.add(playlistOwnerResponse);
+        });
+        return responseList;
+    }
+
+
 }

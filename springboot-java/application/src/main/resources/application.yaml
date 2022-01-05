@@ -22,7 +22,7 @@ spring:
     password: P@ssw0rd
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     generate-ddl: true
     show-sql: true
     properties:

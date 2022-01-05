@@ -2,6 +2,9 @@
 package com.openmusic.api.service;
 
 import com.openmusic.api.entities.database.Collaborations;
+import com.openmusic.api.models.response.PlaylistOwnerResponse;
+
+import java.util.List;
 
 /**
  * @author Ahmad Irfaan Hibatullah
@@ -12,4 +15,5 @@ public interface CollaborationService {
     Collaborations deleteCollaboration(String playlistId, String userId);
     Collaborations verifyCollaborator(String playlistId, String userId);
     Boolean verifyPlaylistAccess(String playlistId, String owner);
+    List<PlaylistOwnerResponse> getAllPlaylist(String owner);
 }

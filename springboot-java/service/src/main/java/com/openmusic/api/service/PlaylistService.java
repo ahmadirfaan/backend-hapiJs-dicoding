@@ -18,4 +18,5 @@ public interface PlaylistService {
     Playlists findPlaylistById(String playlistId);
     PlaylistSong deleteSongAtPlaylist(String playlistId, String songId);
     Playlists verifyPlaylistOwner(String playlistId, String owner);
+    List<Playlists> getAllPlaylist();
 }

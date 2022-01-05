@@ -13,6 +13,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -38,7 +39,18 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private ResponseEntity<Object> handleException(HttpStatus status) {
-        String message = "error." + status.value();
+        String message;
+        int value = status.value();
+        if(value == 401) {
+            message = "Maaf anda tidak tidak terautorisasi untuk mengakses ini";
+        } else if(value == 400) {
+            message = "Client bermasalah";
+        } else if(value == 500) {
+            message = "Internal Server Error";
+        }
+        else {
+            message = "Server error";
+        }
         return handleException(status, message);
     }
 
@@ -74,6 +86,12 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleApplicationException(ApplicationException ex) {
         logger.error("Application Exception : ", ex);
         return handleException(ex.getStatus(), ex.getReason());
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<Object> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+        logger.error("Missing Request Header Exception : ", ex);
+        return handleException(HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ClientException.class)

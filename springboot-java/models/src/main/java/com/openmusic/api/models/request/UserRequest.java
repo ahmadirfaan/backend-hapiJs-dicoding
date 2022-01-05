@@ -16,8 +16,7 @@ public class UserRequest {
     @NotBlank(message = "username tidak boleh ada yang kosong")
     private String password;
 
-    @NotNull(message = "fullName is null")
-    @NotEmpty(message = "fullName contains space")
+    @NotNull
     private String fullName;
 
     /**
