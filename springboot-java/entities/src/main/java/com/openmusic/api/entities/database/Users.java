@@ -19,6 +19,7 @@ public class Users extends AbstractTable<String> {
     @GeneratedValue(generator = "id_user", strategy = GenerationType.IDENTITY)
     private String id;
 
+    @Column(unique = true)
     private String username;
 
     @JsonIgnore

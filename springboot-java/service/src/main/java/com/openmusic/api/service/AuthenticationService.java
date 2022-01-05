@@ -10,5 +10,5 @@ import com.openmusic.api.entities.database.Authentication;
 public interface AuthenticationService {
     Authentication addRefreshToken(String token);
     Authentication verifyRefreshToken(String token);
-    Authentication deleteRefreshToken(String token);
+    Boolean deleteRefreshToken(String token);
 }

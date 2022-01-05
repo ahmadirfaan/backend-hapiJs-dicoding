@@ -1,4 +1,4 @@
-server.port: 5000
+
 logging:
   level:
     org:
@@ -22,17 +22,19 @@ spring:
     password: P@ssw0rd
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     generate-ddl: true
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
   messages.basename: i18n/messages
-com:
-  openmucic:
-    api:
-      ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY:cGFzc3dvcmQ=}
-      REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY:UEBzc3cwcmQ=}
-      ACCESS_TOKEN_AGE: ${ACCESS_TOKEN_AGE:86400}
-      REFRESH_TOKEN_AGE: ${ACCESS_TOKEN_AGE:2592000$}
+  application:
+    name: Open Music API
+application:
+  accessTokenKey: ${ACCESS_TOKEN_KEY}
+  refreshTokenKey: ${REFRESH_TOKEN_KEY}
+  accessTokenAge: ${ACCESS_TOKEN_AGE}
+  refreshTokenAge: ${ACCESS_TOKEN_AGE}
+server:
+  port: 5000

@@ -1,6 +1,8 @@
 package com.openmusic.api;
 
 import com.openmusic.api.config.ApplicationProperties;
+import com.openmusic.api.config.ComProperties;
+import com.openmusic.api.config.OpenmusicProperties;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +13,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.Arrays;
 
-@EnableConfigurationProperties(ApplicationProperties.class)
+@EnableConfigurationProperties({ApplicationProperties.class, ComProperties.class, OpenmusicProperties.class})
 @EnableJpaRepositories(basePackages = "com.openmusic.api.repository.jpa")
 @SpringBootApplication()
 public class OpenMusicApiApplication {

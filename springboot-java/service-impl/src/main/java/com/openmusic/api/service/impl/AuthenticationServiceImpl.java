@@ -8,6 +8,8 @@ import com.openmusic.api.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 /**
  * @author Ahmad Irfaan Hibatullah
  * @version $Id: AuthenticationServiceImpl.java, v 0.1 2021‐10‐20 01.24 Ahmad Irfaan Hibatullah Exp $$
@@ -33,20 +35,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public Authentication verifyRefreshToken(String token) {
         Authentication entity = repository.findByToken(token);
-        if (entity == null || entity.getDeletedDate() != null) {
-            throw new EntityNotFoundException();
-        } else {
-            return entity;
-        }
-    }
-
-    @Override
-    public Authentication deleteRefreshToken(String token) {
-        Authentication entity = repository.findByToken(token);
         if (entity != null && entity.getDeletedDate() == null) {
             return entity;
         } else {
             throw new EntityNotFoundException();
+        }
+    }
+
+    @Override
+    public Boolean deleteRefreshToken(String token) {
+        Authentication entity = verifyRefreshToken(token);
+        if (entity != null && entity.getDeletedDate() == null) {
+            entity.setDeletedDate(LocalDateTime.now());
+            repository.save(entity);
+            return true;
+        } else {
+            return false;
         }
     }
 }
