@@ -12,5 +12,4 @@ public interface UserService {
     Users addUser(UserRequest request);
     Users verifyUsername(String username);
     Users findByUserId(String userId);
-    Boolean verifyUserCredentials(UserLoginRequest request);
 }

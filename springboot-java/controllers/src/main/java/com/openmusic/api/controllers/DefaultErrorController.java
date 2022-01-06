@@ -2,8 +2,10 @@ package com.openmusic.api.controllers;
 
 import com.openmusic.api.exception.PathNotFoundException;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  * @author Ahmad Irfaan Hibatullah

@@ -1,6 +1,8 @@
 
 package com.openmusic.api.models.response;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * @author Ahmad Irfaan Hibatullah
  * @version $Id: AddSongResponse.java, v 0.1 2021‐11‐14 15.22 Ahmad Irfaan Hibatullah Exp $$
@@ -8,7 +10,7 @@ package com.openmusic.api.models.response;
 
 public class AddSongResponse {
 
-
+    @NotBlank
     private String songId;
 
     /**

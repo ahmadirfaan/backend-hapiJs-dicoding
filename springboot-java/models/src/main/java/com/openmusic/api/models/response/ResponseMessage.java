@@ -1,6 +1,7 @@
 
 package com.openmusic.api.models.response;
 
+import com.alipay.tracer.biz.util.ToStringUtil;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -89,5 +90,11 @@ public class ResponseMessage<T> {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+
+    @Override
+    public String toString() {
+        return ToStringUtil.reflectionToLogStringByFields(this);
     }
 }

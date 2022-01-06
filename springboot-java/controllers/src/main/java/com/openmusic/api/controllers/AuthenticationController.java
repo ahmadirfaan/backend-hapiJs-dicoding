@@ -11,6 +11,9 @@ import com.openmusic.api.service.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -32,53 +35,51 @@ public class AuthenticationController {
     protected final AuthenticationService authenticationService;
     protected final JwtTokenUtil jwtTokenUtil;
     protected final UserService userService;
+    protected final AuthenticationManager authenticationManager;
 
     @Autowired
     public AuthenticationController(UserDetailsService usersDetailService,
                                     AuthenticationService authenticationService,
-                                    JwtTokenUtil jwtTokenUtil, UserService userService) {
+                                    JwtTokenUtil jwtTokenUtil, UserService userService, AuthenticationManager authenticationManager) {
         this.usersDetailService = usersDetailService;
         this.authenticationService = authenticationService;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userService = userService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping
     public ResponseEntity<ResponseMessage<Map<String, String>>> postAuthentication(@RequestBody @Valid UserLoginRequest request) {
-        Boolean isLogin = userService.verifyUserCredentials(request);
+        org.springframework.security.core.Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         ResponseMessage<Map<String, String>> responseMessage = new ResponseMessage<>();
-        if (isLogin) {
+        //create skeleton of Response Message
+        responseMessage.setStatus("success");
+        responseMessage.setMessage("Authentication berhasil ditambahkan");
 
-            //create skeleton of Response Message
-            responseMessage.setStatus("success");
-            responseMessage.setMessage("Authentication berhasil ditambahkan");
+        //generate user details
+        UserDetails userDetails = usersDetailService.loadUserByUsername(request.getUsername());
 
-            //generate user details
-            UserDetails userDetails = usersDetailService.loadUserByUsername(request.getUsername());
+        //generate access token and refresh token
+        String accessToken = jwtTokenUtil.generateAccessToken(userDetails);
+        String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
 
-            //generate access token and refresh token
-            String accessToken = jwtTokenUtil.generateAccessToken(userDetails);
-            String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+        //response message data
+        Map<String, String> mapToken = new HashMap<>();
+        mapToken.put("accessToken", accessToken);
+        mapToken.put("refreshToken", refreshToken);
 
-            //response message data
-            Map<String, String> mapToken = new HashMap<>();
-            mapToken.put("accessToken", accessToken);
-            mapToken.put("refreshToken", refreshToken);
+        //add refresh token to database
+        authenticationService.addRefreshToken(refreshToken);
 
-            //add refresh token to database
-            authenticationService.addRefreshToken(refreshToken);
+        //set data to responseMessage
+        responseMessage.setData(mapToken);
 
-            //set data to responseMessage
-            responseMessage.setData(mapToken);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(responseMessage);
-        } else {
-            responseMessage.setStatus("fail");
-            responseMessage.setMessage("password salah");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMessage);
-
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseMessage);
     }
+
 
     @PutMapping
     public ResponseEntity<ResponseMessage<Map<String, String>>> putAuthentication(@RequestBody @Valid RefreshTokenRequest request) {

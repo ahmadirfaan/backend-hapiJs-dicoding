@@ -5,31 +5,29 @@ import com.openmusic.api.entities.database.Users;
 import com.openmusic.api.service.UserService;
 import com.openmusic.api.service.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Ahmad Irfaan Hibatullah
- * @version $Id: JwtExtractUserId.java, v 0.1 2022‐01‐05 13.44 Ahmad Irfaan Hibatullah Exp $$
+ * @version $Id: HelperUserId.java, v 0.1 2022‐01‐05 13.44 Ahmad Irfaan Hibatullah Exp $$
  */
 
 @Component
-public class JwtExtractUserId {
+public class HelperUserId {
 
 
     protected static UserService service = null;
     protected static JwtTokenUtil jwtTokenUtil = null;
 
     @Autowired
-    public JwtExtractUserId(UserService userService, JwtTokenUtil tokenUtil) {
+    public HelperUserId(UserService userService, JwtTokenUtil tokenUtil) {
         service = userService;
         jwtTokenUtil = tokenUtil;
     }
 
-    public static String extractUserIdFromToken(String headersAuthorization) {
-        int maxLength = headersAuthorization.length();
-        String accessToken = headersAuthorization.substring(7, maxLength);
-        String username = jwtTokenUtil.getUserNameFromAccessToken(accessToken);
-        Users users = service.verifyUsername(username);
+    public static String extractUserIdFromToken(User user) {
+        Users users = service.verifyUsername(user.getUsername());
         return users.getId();
     }
 }

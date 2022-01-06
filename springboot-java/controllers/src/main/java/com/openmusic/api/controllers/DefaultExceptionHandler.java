@@ -9,6 +9,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -125,8 +127,20 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<Object> handleUnknownException(MalformedJwtException e) {
+    public ResponseEntity<Object> handleMalformedJwtException(MalformedJwtException e) {
         logger.error("Malformed JWT Exception : ", e);
+        return handleException(HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException e) {
+        logger.error("BadCredentialsException : ", e);
+        return handleException(HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<Object> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException e) {
+        logger.error("InternalAuthenticationServiceException : ", e);
         return handleException(HttpStatus.BAD_REQUEST);
     }
 
