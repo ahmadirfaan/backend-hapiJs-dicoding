@@ -3,9 +3,13 @@ package com.openmusic.api.controllers;
 
 import com.openmusic.api.entities.database.PlaylistSong;
 import com.openmusic.api.entities.database.Playlists;
+import com.openmusic.api.exception.ClientException;
 import com.openmusic.api.models.request.AddSongToPlaylist;
 import com.openmusic.api.models.request.PlaylistRequest;
-import com.openmusic.api.models.response.*;
+import com.openmusic.api.models.response.AddSongResponse;
+import com.openmusic.api.models.response.PlaylistOwnerResponse;
+import com.openmusic.api.models.response.ResponseMessage;
+import com.openmusic.api.models.response.SongAtPlaylistResponse;
 import com.openmusic.api.service.CollaborationService;
 import com.openmusic.api.service.PlaylistService;
 import com.openmusic.api.util.HelperUserId;
@@ -91,11 +95,15 @@ public class PlaylistController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = HelperUserId.extractUserIdFromToken(user);
         ResponseMessage<String> responseMessage = new ResponseMessage<>();
-        Playlists playlists = playlistService.verifyPlaylistOwner(playlistId, userId);
-        playlistService.addSongToPlaylist(playlists.getId(), request.getSongId());
-        responseMessage.setMessage("Lagu berhasil ditambahkan ke playlist");
-        responseMessage.setData(null);
-        responseMessage.setStatus("success");
+        Boolean isAccess = collaborationService.verifyPlaylistAccess(playlistId, userId);
+        if(isAccess) {
+            playlistService.addSongToPlaylist(playlistId, request.getSongId());
+            responseMessage.setMessage("Lagu berhasil ditambahkan ke playlist");
+            responseMessage.setData(null);
+            responseMessage.setStatus("success");
+        } else {
+            throw new ClientException("Error");
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(responseMessage);
     }
 
@@ -104,21 +112,25 @@ public class PlaylistController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = HelperUserId.extractUserIdFromToken(user);
         ResponseMessage<Map<String, Object>> responseMessage = new ResponseMessage<>();
-        Playlists playlists = playlistService.verifyPlaylistOwner(playlistId, userId);
-        List<PlaylistSong> playlistSongList = playlistService.getSongAtPlaylist(playlists.getId());
-        List<SongAtPlaylistResponse> data = new ArrayList<>();
-        playlistSongList.forEach(ps -> {
-            SongAtPlaylistResponse response = new SongAtPlaylistResponse();
-            response.setTitle(ps.getSong().getTitle());
-            response.setSongId(ps.getSong().getId());
-            response.setPerformer(ps.getSong().getPerformer());
-            data.add(response);
-        });
-        Map<String, Object> dataMap = new HashMap<>();
-        dataMap.put("songs", data);
-        responseMessage.setMessage("Playlist Berhasil Ditambahkan");
-        responseMessage.setData(dataMap);
-        responseMessage.setStatus("success");
+        Boolean isAccess = collaborationService.verifyPlaylistAccess(playlistId, userId);
+        if(isAccess) {
+            List<PlaylistSong> playlistSongList = playlistService.getSongAtPlaylist(playlistId);
+            List<SongAtPlaylistResponse> data = new ArrayList<>();
+            playlistSongList.forEach(ps -> {
+                SongAtPlaylistResponse response = new SongAtPlaylistResponse();
+                response.setTitle(ps.getSong().getTitle());
+                response.setSongId(ps.getSong().getId());
+                response.setPerformer(ps.getSong().getPerformer());
+                data.add(response);
+            });
+            Map<String, Object> dataMap = new HashMap<>();
+            dataMap.put("songs", data);
+            responseMessage.setMessage(null);
+            responseMessage.setData(dataMap);
+            responseMessage.setStatus("success");
+        } else {
+            throw new ClientException("Error");
+        }
         return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
     }
 
@@ -128,11 +140,15 @@ public class PlaylistController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = HelperUserId.extractUserIdFromToken(user);
         ResponseMessage<String> responseMessage = new ResponseMessage<>();
-        Playlists playlists = playlistService.verifyPlaylistOwner(playlistId, userId);
-        PlaylistSong playlistSong = playlistService.deleteSongAtPlaylist(playlists.getId(), request.getSongId());
-        responseMessage.setMessage("Lagu berhasil dihapus dari playlist");
-        responseMessage.setData(null);
-        responseMessage.setStatus("success");
+        Boolean isAccess = collaborationService.verifyPlaylistAccess(playlistId, userId);
+        if(isAccess) {
+            PlaylistSong playlistSong = playlistService.deleteSongAtPlaylist(playlistId, request.getSongId());
+            responseMessage.setMessage("Lagu berhasil dihapus dari playlist");
+            responseMessage.setData(null);
+            responseMessage.setStatus("success");
+        } else {
+            throw new ClientException("Error");
+        }
         return ResponseEntity.status(HttpStatus.OK).body(responseMessage);
     }
 

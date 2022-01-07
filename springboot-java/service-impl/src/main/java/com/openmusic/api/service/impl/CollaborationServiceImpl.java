@@ -6,6 +6,7 @@ import com.openmusic.api.entities.database.Users;
 import com.openmusic.api.exception.ApplicationException;
 import com.openmusic.api.exception.ClientException;
 import com.openmusic.api.exception.EntityNotFoundException;
+import com.openmusic.api.exception.UnauthorizedException;
 import com.openmusic.api.models.response.PlaylistOwnerResponse;
 import com.openmusic.api.repository.jpa.CollaborationsRepository;
 import com.openmusic.api.service.CollaborationService;
@@ -61,28 +62,31 @@ public class CollaborationServiceImpl implements CollaborationService {
     @Override
     public Collaborations deleteCollaboration(String playlistId, String userId) {
         if (verifyPlaylistAndUserExist(playlistId, userId)) {
+            Playlists playlists = playlistService.findPlaylistById(playlistId);
+            Users users = userService.findByUserId(userId);
             Collaborations collaborations = collaborationsRepository.findByPlaylistsAndUsers(
-                    playlistId, userId
+                    playlists, users
             );
             collaborations.setDeletedDate(LocalDateTime.now());
+            collaborationsRepository.save(collaborations);
             return collaborations;
         } else {
             throw new ClientException("Kolaborasi gagal dihapus");
         }
     }
 
-    @Override
-    public Collaborations verifyCollaborator(String playlistId, String userId) {
-        Collaborations collaborations = new Collaborations();
+    private void verifyCollaborator(String playlistId, String userId) {
+        Collaborations collaborations;
         if(verifyPlaylistAndUserExist(playlistId, userId)) {
+            Playlists playlists = playlistService.findPlaylistById(playlistId);
+            Users users = userService.findByUserId(userId);
             collaborations = collaborationsRepository.findByPlaylistsAndUsers(
-                    playlistId, userId
+                    playlists, users
             );
             if(collaborations == null || collaborations.getDeletedDate() != null) {
-                throw new ClientException("Kolaborasi gagal diverifikasi");
+                throw new UnauthorizedException("Anda sudah tidak berhak mengakses resource ini");
             }
         }
-        return collaborations;
     }
 
     private Boolean verifyPlaylistAndUserExist(String playlistId, String userId) {
@@ -101,15 +105,8 @@ public class CollaborationServiceImpl implements CollaborationService {
     public Boolean verifyPlaylistAccess(String playlistId, String owner) {
         try {
             playlistService.verifyPlaylistOwner(playlistId, owner);
-        } catch (Exception e) {
-            if(e instanceof EntityNotFoundException) {
-                throw e;
-            }
-            try {
-                verifyCollaborator(playlistId, owner);
-            } catch (Exception ex){
-                throw new RuntimeException();
-            }
+        } catch (UnauthorizedException e) {
+            verifyCollaborator(playlistId, owner);
         }
         return true;
     }
@@ -117,14 +114,14 @@ public class CollaborationServiceImpl implements CollaborationService {
     @Override
     public List<PlaylistOwnerResponse> getAllPlaylist(String owner) {
         // playlist response from collaborations
-        List<Collaborations> collaborationsList = collaborationsRepository.findAll();
+        List<Collaborations> collaborationsList = findAll();
         collaborationsList = collaborationsList.stream().filter(collaborations -> collaborations.getUsers().getId().equals(owner)).collect(Collectors.toList());
         List<PlaylistOwnerResponse> responseList = new ArrayList<>();
         collaborationsList.forEach(collaborations -> {
             PlaylistOwnerResponse playlistOwnerResponse = new PlaylistOwnerResponse();
             playlistOwnerResponse.setId(collaborations.getPlaylists().getId());
             playlistOwnerResponse.setName(collaborations.getPlaylists().getName());
-            playlistOwnerResponse.setUsername(collaborations.getUsers().getUsername());
+            playlistOwnerResponse.setUsername(collaborations.getPlaylists().getOwner().getUsername());
             responseList.add(playlistOwnerResponse);
         });
 
@@ -140,6 +137,14 @@ public class CollaborationServiceImpl implements CollaborationService {
         });
         return responseList;
     }
+
+    private List<Collaborations> findAll() {
+        return collaborationsRepository.findAll().stream().filter(
+                collaborations -> collaborations.getDeletedDate() == null
+        ).collect(Collectors.toList());
+    }
+
+
 
 
 }

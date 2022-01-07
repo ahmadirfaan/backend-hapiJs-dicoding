@@ -1,6 +1,8 @@
 package com.openmusic.api.repository.jpa;
 
 import com.openmusic.api.entities.database.Collaborations;
+import com.openmusic.api.entities.database.Playlists;
+import com.openmusic.api.entities.database.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +12,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CollaborationsRepository extends JpaRepository<Collaborations, String> {
-    Collaborations findByPlaylistsAndUsers(String playlistsId, String userId);
+    Collaborations findByPlaylistsAndUsers(Playlists playlists, Users users);
 }

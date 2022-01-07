@@ -13,7 +13,6 @@ import java.util.List;
 public interface CollaborationService {
     Collaborations addCollaboration(String playlistId, String userId);
     Collaborations deleteCollaboration(String playlistId, String userId);
-    Collaborations verifyCollaborator(String playlistId, String userId);
     Boolean verifyPlaylistAccess(String playlistId, String owner);
     List<PlaylistOwnerResponse> getAllPlaylist(String owner);
 }
