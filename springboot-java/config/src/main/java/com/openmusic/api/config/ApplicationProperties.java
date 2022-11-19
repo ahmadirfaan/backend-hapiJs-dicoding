@@ -1,6 +1,5 @@
 package com.openmusic.api.config;
 
-import com.alipay.tracer.biz.util.ToStringUtil;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -96,6 +95,11 @@ public class ApplicationProperties {
 
     @Override
     public String toString() {
-        return ToStringUtil.reflectionToLogStringByFields(this);
+        return "ApplicationProperties{" +
+                "accessTokenKey='" + accessTokenKey + '\'' +
+                ", refreshTokenKey='" + refreshTokenKey + '\'' +
+                ", accessTokenAge='" + accessTokenAge + '\'' +
+                ", refreshTokenAge='" + refreshTokenAge + '\'' +
+                '}';
     }
 }

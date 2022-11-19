@@ -1,6 +1,5 @@
 package com.openmusic.api.models.request;
 
-import com.alipay.tracer.biz.util.ToStringUtil;
 
 import javax.validation.constraints.NotBlank;
 
@@ -34,6 +33,8 @@ public class RefreshTokenRequest {
 
     @Override
     public String toString() {
-        return ToStringUtil.reflectionToLogStringByFields(this);
+        return "RefreshTokenRequest{" +
+                "refreshToken='" + refreshToken + '\'' +
+                '}';
     }
 }
